@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>登录页面</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+<div id="app">
+    <div style="width:400px;margin:300px 0 0 35%;padding:20px 40px" >
+        <el-tabs v-model="activeName">
+            <el-tab-pane label="用户登录" name="first">
+                <el-form :model="loginForm" status-icon ref="loginForm"   label-width="60px">
+                    <el-form-item label="用户名" prop="username">
+                        <el-input type="text" name="username" v-model="loginForm.username" auto-complete="off" placeholder="请输入用户名"></el-input>
+                    </el-form-item>
+                    <el-form-item label="  密码" prop="password">
+                        <el-input type="password" name="password" v-model="loginForm.password" auto-complete="off" placeholder="请输入密码"></el-input>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-checkbox name="rememberMe" v-model="loginForm.rememberMe" prop="rememberMe">记住我，下次可直接登录</el-checkbox>
+                    </el-form-item>
+
+                    <el-form-item>
+                        <el-button type="primary" @click="submitForm()">登录</el-button>
+                        <el-button @click="loginFormClean()" type="primary">重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane label="用户注册" name="second">
+                <el-form :model="regestForm" status-icon ref="regestForm"   label-width="60px" >
+                    <el-form-item label="用户名" prop="username">
+                        <el-input type="text" v-model="regestForm.username" auto-complete="off" placeholder="请输入用户名"></el-input>
+                    </el-form-item>
+                    <el-form-item label="密码" prop="password">
+                        <el-input type="password" v-model="regestForm.password" auto-complete="off" placeholder="请输入密码"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="regestSubmit()">注册</el-button>
+                        <el-button @click="regestFormClean()" type="primary">重置</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-tab-pane>
+        </el-tabs>
+    </div>
+</div>
+</body>
+<link rel="Shortcut Icon" href="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1568637756827&di=0037a367aff4b674bff949ef35535637&imgtype=0&src=http%3A%2F%2Fgss0.baidu.com%2F-vo3dSag_xI4khGko9WTAnF6hhy%2Fzhidao%2Fpic%2Fitem%2Ffaf2b2119313b07ea7a29c990cd7912397dd8c00.jpg" />
+<!-- 先引入 Vue -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data:{
+            loginForm:{
+                username:"",
+                password:"",
+                rememberMe:false
+            },
+            regestForm:{
+                username:"",
+                password:""
+            },
+            activeName:'first',
+        },
+        mounted:function(){
+
+        },
+        methods:{
+            submitForm:function () {
+                axios.post('user/login',this.loginForm).then(function(response){
+                   if (response.data.code==200){
+                        window.location.href = "jump/toHome";
+                   }else {
+                       app.$notify.info({
+                           title: '消息',
+                           message:response.data.msg
+                       })
+                   }
+
+                })
+            },
+            loginFormClean:function () {
+               this.$refs.loginForm.resetFields();
+            },
+            regestSubmit:function(){
+                axios.post('user/save',this.regestForm).then(function(response){
+                    console.log(response)
+                    app.$notify.info({
+                        title: '消息',
+                        message:response.data.msg
+                    })
+                })
+            },
+            regestFormClean:function () {
+                this.$refs.regestForm.resetFields();
+            },
+        }
+    })
+</script>
+</html>

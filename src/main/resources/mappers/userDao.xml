@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jyz.springbootshiro.mvc.dao.UserDao">
+
+    <insert id="saveUser" parameterType="com.jyz.springbootshiro.mvc.entity.UserEntity">
+        insert  into sys_user (username,password,solt) value (#{username},#{password},#{solt})
+    </insert>
+
+    <select id="selectByUserName" resultType="com.jyz.springbootshiro.mvc.entity.UserEntity">
+        select username,password,solt from sys_user where username =#{username} and deleted = 0 limit 1
+    </select>
+
+
+    <resultMap id="MenuListMap" type="com.jyz.springbootshiro.mvc.entity.PermissionEntity">
+         <id column="id" property="id"></id>
+         <result property="type" column="type"></result>
+        <result property="permissionDesc" column="permissionDesc"></result>
+        <result property="url" column="url"></result>
+        <result property="parentId" column="parentId"></result>
+        <result property="operation" column="operation"></result>
+        <collection property="childerenPerm" column="{id=id}" select="selectChilderenPerm"></collection>
+    </resultMap>
+
+    <select id="selectMenuList" resultMap="MenuListMap">
+            SELECT  id,type,permissionDesc,url,parentId,operation
+            FROM sys_permission  WHERE  parentId = 0 and deleted=0 and type=1  and id in
+            (select  DISTINCT(permissionId)  from  sys_role_permission  where roleId in  (select r.roleId from sys_user u  join   sys_user_role r on u.id = r.userId where u.username=#{username}))
+    </select>
+
+    <select id="selectChilderenPerm" resultType="com.jyz.springbootshiro.mvc.entity.PermissionEntity">
+        SELECT  id,type,permissionDesc,url,parentId,operation
+        FROM sys_permission  WHERE  parentId=#{id} and deleted=0 and type=1
+    </select>
+
+
+    <resultMap id="RoleListMap" type="com.jyz.springbootshiro.mvc.models.RoleModel">
+        <id column="id" property="id"></id>
+        <result column="roleName" property="roleName"></result>
+        <result column="roleDesc" property="roleDesc"></result>
+        <collection property="perms" column="{rid=roleId}" select="getRolePerm"></collection>
+    </resultMap>
+
+
+    <select id="selectRoles" resultMap="RoleListMap">
+         select ur.roleId,r.roleName,r.roleDesc
+         from sys_user u join  sys_user_role  ur on u.id = ur.userId
+         join sys_role r on r.id = ur.roleId where u.username =#{username}  and r.deleted = 0
+    </select>
+
+    <select id="getRolePerm" resultType="com.jyz.springbootshiro.mvc.entity.PermissionEntity">
+         select   p.id,p.type, p.permissionDesc,p.url,p.parentId,p.operation
+         from sys_role_permission  rp join sys_permission p   on   p.id = rp.permissionId
+         where p.deleted =0 and p.type = 2   and rp.roleId =#{rid}
+    </select>
+
+</mapper>

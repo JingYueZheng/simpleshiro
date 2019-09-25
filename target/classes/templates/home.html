@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <link rel="Shortcut Icon" href="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1568637756827&di=0037a367aff4b674bff949ef35535637&imgtype=0&src=http%3A%2F%2Fgss0.baidu.com%2F-vo3dSag_xI4khGko9WTAnF6hhy%2Fzhidao%2Fpic%2Fitem%2Ffaf2b2119313b07ea7a29c990cd7912397dd8c00.jpg" />
+</head>
+<body>
+    <div id="app">
+        <el-container>
+            <el-header height="60px" style="background-color:#00EEEE">
+                <a  href="/shiro/logout" style="float:right">【退出】</a>
+                <h1 style="color: white">xxx管理系统</h1>
+            </el-header>
+            <el-container>
+                <el-aside width="200px" id="aside">
+                    <el-row>
+                        <el-col :span="24">
+                            <el-menu  class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"  default-active
+                                      background-color="#76EEC6" text-color="#fbf9f4" active-text-color="#FFD700">
+                                <el-submenu :index="String(index)"  v-for="(parent,index) in menuList" router=true>
+                                    <template slot="title">
+                                        <i class="el-icon-location"></i>
+                                        <span>{{parent.permissionDesc}}</span>
+                                    </template>
+                                    <el-menu-item-group>
+                                        <el-menu-item :index="String(index+'-'+cindex)" :route="child.url" v-for="(child,cindex) in parent.childerenPerm">{{child.permissionDesc}}</el-menu-item>
+                                    </el-menu-item-group>
+                                </el-submenu>
+                            </el-menu>
+                        </el-col>
+                    </el-row>
+                </el-aside>
+                <el-container>
+                    <el-main>
+                        main
+                    </el-main>
+                    <el-footer height="30px">@copyxxx公司
+                        <a href="/shiro/user/getmsg">用户xxx的权限</a>
+                        <a href="/shiro/user/view">用户查看权限</a>
+                        <a href="/shiro/user/update">用户修改权限</a>
+                        <a href="/shiro/user/delete">用户删除权限</a>
+                        <a href="/shiro/user/testLis">测试监听器</a>
+                    </el-footer>
+                </el-container>
+            </el-container>
+        </el-container>
+    </div>
+</body>
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<!-- 先引入 Vue -->
+<script src="https://unpkg.com/vue/dist/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data:{
+            menuList:[],
+        },
+        mounted:function(){
+            var height = document.documentElement.clientHeight
+            document.getElementById("aside").style.height = height-75+"px";
+            document.getElementById("aside").style.backgroundColor = "#76EEC6";
+        },
+        created:function(){
+            this.selectMenuList();
+        },
+        methods: {
+            handleOpen: function (key, keyPath) {
+                console.log(key, keyPath);
+            },
+            handleClose: function (key, keyPath) {
+                console.log(key, keyPath);
+            },
+            selectMenuList: function () {
+                var that = this;
+                axios.post('/shiro/user/menuList').then(function(response){
+                    if (response.data.code==200){
+                        that.menuList = response.data.data
+                    }else {
+                        app.$notify.info({
+                            title: '消息',
+                            message:response.data.msg
+                        })
+                    }
+                })
+            },
+        }
+    })
+
+</script>
+</html>
